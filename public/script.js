@@ -1,18 +1,12 @@
-// app.js
-
-// DOM Elements
 const loginScreen = document.getElementById("login-screen");
 const signupScreen = document.getElementById("signup-screen");
 const mainScreen = document.getElementById("main-screen");
-
 const loginButton = document.getElementById("login-button");
 const signupButton = document.getElementById("signup-button");
 const goToSignup = document.getElementById("go-to-signup");
 const goToLogin = document.getElementById("go-to-login");
 const logoutButton = document.getElementById("logout-button");
 const editSaveButton = document.getElementById("edit-save-button");
-// const searchButton = document.getElementById("search-button");
-
 const loginUsername = document.getElementById("login-username");
 const loginPassword = document.getElementById("login-password");
 const signupUsername = document.getElementById("signup-username");
@@ -21,12 +15,15 @@ const signupPassword = document.getElementById("signup-password");
 const editUsername = document.getElementById("edit-username");
 const editEmail = document.getElementById("edit-email");
 const editPassword = document.getElementById("edit-password");
-
-// const searchInput = document.getElementById("search-input");
-// const searchResults = document.getElementById("search-results");
 const userNameDisplay = document.getElementById("user-name");
+const searchInput = document.getElementById("search-input");
+const searchGenreInput = document.getElementById("search-genre");
+const searchLanguageInput = document.getElementById("search-language");
+const searchButton = document.getElementById("search-button");
+const resultsList = document.getElementById("results-list");
+const likedSongsList = document.getElementById("liked-songs-list");
+const followedArtistsList = document.getElementById("followed-artists-list");
 
-// Mock User Database
 const users = [
   {
     username: "test",
@@ -43,9 +40,10 @@ loginButton.addEventListener("click", () => {
   const password = loginPassword.value;
 
   if (currentUser) {
-    userNameDisplay.textContent = currentUser.username;
+    // userNameDisplay.textContent = currentUser.username;
     switchScreen(mainScreen);
     renderLikedSongs();
+    renderArtists();
   } else {
     alert("Invalid email or password");
   }
@@ -98,33 +96,13 @@ editSaveButton.addEventListener("click", async () => {
     }
 
     const updatedInfo = await response.json();
-    console.log(updatedInfo);
+    // console.log("response here", updatedInfo);
     alert("Profile updated successfully");
   } catch (error) {
     console.error(error);
   }
 });
 
-// searchButton.addEventListener("click", () => {
-//   const query = searchInput.value.toLowerCase();
-
-//   if (!query) {
-//     searchResults.innerHTML = "<p>Please enter a search term.</p>";
-//     return;
-//   }
-
-//   // Mock search functionality
-//   const mockSongs = ["Song A", "Song B", "Song C", "Another Song"];
-//   const results = mockSongs.filter((song) =>
-//     song.toLowerCase().includes(query)
-//   );
-
-//   searchResults.innerHTML = results.length
-//     ? `<ul>${results.map((song) => `<li>${song}</li>`).join("")}</ul>`
-//     : "<p>No songs found.</p>";
-// });
-
-// Helper Functions
 function switchScreen(screenToShow) {
   [loginScreen, signupScreen, mainScreen].forEach((screen) => {
     screen.style.display = "none";
@@ -134,16 +112,6 @@ function switchScreen(screenToShow) {
 
 //search songs, like songs and follow artists
 
-// DOM Elements
-const searchInput = document.getElementById("search-input");
-const searchGenreInput = document.getElementById("search-genre");
-const searchLanguageInput = document.getElementById("search-language");
-const searchButton = document.getElementById("search-button");
-const resultsList = document.getElementById("results-list");
-const likedSongsList = document.getElementById("liked-songs-list");
-const followedArtistsList = document.getElementById("followed-artists-list");
-
-// Fetch and Render Songs Based on Search
 async function searchSongs() {
   const searchQuery = searchInput.value.toLowerCase();
   const genre = searchGenreInput.value.toLowerCase();
@@ -157,9 +125,6 @@ async function searchSongs() {
     }
 
     const songs = await response.json();
-    // console.log(songs);
-
-    // Mock filtering logic
     const filteredSongs = songs.filter((song) => {
       const matchesQuery = searchQuery
         ? song.title.toLowerCase().includes(searchQuery) ||
@@ -191,7 +156,7 @@ function renderSearchResults(songs) {
             <td>${song.genre}</td>
             <td>${song.language}</td>
             <td>
-                <button onclick="likeSong('${song.title}')">Like</button>
+                <button onclick="likeSong('${song._id}')">Like</button>
                 <button onclick="followArtist('${song.artist}')">Follow</button>
             </td>
         </tr>
@@ -201,7 +166,55 @@ function renderSearchResults(songs) {
 }
 
 // Like a Song
-const likeSong = async (songTitle) => {};
+const likeSong = async (songId) => {
+  try {
+    const userId = "67684b30419df48075106542";
+    const response = await fetch(`/songs/${userId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ songId }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      alert(`Error: ${response.status} - ${errorText}`);
+    }
+
+    const newlyAddedSong = await response.json();
+    // console.log("Newly added song:", newlyAddedSong);
+
+    renderLikedSongs();
+  } catch (error) {
+    console.error("Error in likeSong function:", error);
+  }
+};
+
+const followArtist = async (artist) => {
+  try {
+    const userId = "67684b30419df48075106542";
+    const response = await fetch(`/artists/${userId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ artist }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      alert(`Error: ${response.status} - ${errorText}`);
+    }
+
+    const newlyAddedArtist = await response.json();
+    console.log("Newly added artist:", newlyAddedArtist);
+
+    renderArtists();
+  } catch (error) {
+    console.error("Error in likeSong function:", error);
+  }
+};
 
 const renderLikedSongs = async () => {
   try {
@@ -231,12 +244,28 @@ const renderLikedSongs = async () => {
   }
 };
 
-// Follow an Artist
-function followArtist(artistName) {
-  const listItem = document.createElement("li");
-  listItem.textContent = artistName;
-  followedArtistsList.appendChild(listItem);
-}
+const renderArtists = async () => {
+  try {
+    const response = await fetch(`/user/artists/${currentUser.id}`);
+    if (!response.ok) {
+      throw new Error("error status: ", response.status);
+    }
+
+    const user = await response.json();
+    const followedArtists = user.followedArtists;
+    // console.log(followedArtists); //array[]
+    followedArtistsList.innerHTML = "";
+
+    followedArtists.forEach((artist) => {
+      const li = `
+      <li>${artist}</li>`;
+
+      followedArtistsList.innerHTML += li;
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 // Event Listeners
 searchButton.addEventListener("click", searchSongs);

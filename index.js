@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import "dotenv/config";
 import { userRouter } from "./routers/UserRouer.js";
 import { songRouter } from "./routers/SongRouter.js";
+import { artistRouter } from "./routers/ArtistRouter.js";
 
 export const db = mongoose.connection;
 const port = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use(express.static("public"));
 
 app.use("/user", userRouter);
 app.use("/songs", songRouter);
+app.use("/artists", artistRouter);
 
 db.once("open", () => {
   app.listen(port, () => {

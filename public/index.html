@@ -6,7 +6,7 @@
     <title>Spotify</title>
   </head>
   <body>
-    <h4>Spotify Lite Application</h4>
+    <h1>Spotify Lite Application</h1>
 
     <div id="login-screen" class="screen">
       <h2>Login</h2>
@@ -26,8 +26,8 @@
     </div>
 
     <div id="main-screen" class="screen" style="display: none">
-      <div style="display: none">
-        <h2>Welcome, <span id="user-name">User</span></h2>
+      <div>
+        <h2>Hi, <span id="user-name"></span></h2>
         <button id="logout-button">Logout</button>
       </div>
 
@@ -67,14 +67,11 @@
         </table>
       </div>
 
-      <!-- Followed Artists and Liked Songs -->
-      <!-- <div id="user-collections">
-        <h3>Liked Songs</h3>
-        <ul id="liked-songs-list"></ul>
-
+      <!-- My liked artists -->
+      <div id="liked-artists">
         <h3>Followed Artists</h3>
         <ul id="followed-artists-list"></ul>
-      </div> -->
+      </div>
 
       <!-- My liked songs -->
       <div id="liked-songs">
@@ -95,7 +92,7 @@
       </div>
 
       <!-- Edit Profile -->
-      <div id="edit-profile" style="display: none">
+      <div id="edit-profile">
         <h3>Edit Profile</h3>
         <input type="text" id="edit-username" placeholder="New Username" />
         <input type="email" id="edit-email" placeholder="New Email" />

@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
-const refType = Schema.Types.ObjectId;
 
 const UserSchema = new Schema(
   {
@@ -19,10 +18,13 @@ const UserSchema = new Schema(
     },
     likedSongs: [
       {
-        type: refType,
-        ref: "Song",
+        title: { type: String, required: true },
+        genre: { type: String, required: true },
+        artist: { type: String, required: true },
+        language: { type: String, required: true },
       },
     ],
+    followedArtists: [{ type: String }],
   },
   { collection: "users" }
 );

@@ -1,6 +1,10 @@
 import Router from "express";
-import { getAllsongsInDB } from "../controllers/SongController.js";
+import {
+  getAllsongsInDB,
+  getUserandAddLikedSong,
+} from "../controllers/SongController.js";
 
 export const songRouter = Router();
 
 songRouter.get("/", getAllsongsInDB);
+songRouter.post("/:id", getUserandAddLikedSong);
