@@ -24,62 +24,120 @@ const resultsList = document.getElementById("results-list");
 const likedSongsList = document.getElementById("liked-songs-list");
 const followedArtistsList = document.getElementById("followed-artists-list");
 
-const users = [
-  {
-    username: "test",
-    email: "test@gmail.com",
-    password: "Testtest1!",
-    id: "67684b30419df48075106542",
-  },
-];
-let currentUser = users[0];
+let currentUserId = "";
 
 // Event Handlers
-loginButton.addEventListener("click", () => {
-  const username = loginUsername.value;
-  const password = loginPassword.value;
+loginButton.addEventListener("click", async () => {
+  try {
+    // const validationSchema = Yup.object().shape({
+    //   username: Yup.string()
+    //     .min(2, "Too Short!")
+    //     .max(50, "Too Long!")
+    //     .required("Username is required"),
+    //   password: Yup.string()
+    //     .min(2, "Too Short!")
+    //     .max(50, "Too Long!")
+    //     .required("Password is required"),
+    // });
+    // const data = {
+    //   username: loginUsername.value,
+    //   password: loginPassword.value,
+    // };
 
-  if (currentUser) {
-    // userNameDisplay.textContent = currentUser.username;
+    await validationSchema.validate(data, { abortEarly: false });
+
+    const res = await fetch("/user/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      alert(`Login failed: ${res.status}`);
+      return;
+    }
+
+    const dataJson = await res.json();
+
+    currentUserId = dataJson.userId;
+    console.log(dataJson.userId);
+    const { token } = dataJson;
+
+    window.localStorage.setItem("username", username);
+    window.localStorage.setItem("token", token);
+
     switchScreen(mainScreen);
-    renderLikedSongs();
-    renderArtists();
-  } else {
-    alert("Invalid email or password");
+    renderLikedSongs(currentUserId);
+    renderArtists(currentUserId);
+  } catch (error) {
+    console.error(`Login unsucessfully: ${error}`);
   }
 });
 
-signupButton.addEventListener("click", () => {
-  const username = signupUsername.value;
-  const email = signupEmail.value;
-  const password = signupPassword.value;
+signupButton.addEventListener("click", async () => {
+  try {
+    const data = {
+      username: signupUsername.value,
+      email: signupEmail.value,
+      password: signupPassword.value,
+    };
 
-  if (users.find((u) => u.email === email)) {
-    alert("Email already registered");
-    return;
+    await validationSchema.validate(data, { abortEarly: false });
+
+    const res = await fetch("/user/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      alert("Cannot create User", res.status);
+      return;
+    }
+    const dataJson = await res.json();
+    console.log(dataJson);
+    const { token } = dataJson;
+    window.localStorage.setItem("token", token);
+    window.localStorage.setItem("username", username);
+    switchScreen(loginScreen);
+  } catch (error) {
+    alert(`Sign up failed: ${error}`);
   }
-
-  users.push({ username, email, password });
-  alert("Signup successful! Please login.");
-  switchScreen(loginScreen);
 });
 
 goToSignup.addEventListener("click", () => switchScreen(signupScreen));
 goToLogin.addEventListener("click", () => switchScreen(loginScreen));
 
-logoutButton.addEventListener("click", () => {
-  currentUser = null;
-  switchScreen(loginScreen);
+logoutButton.addEventListener("click", async () => {
+  try {
+    const res = await fetch("/user/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      alert("Unable to logout");
+      return;
+    }
+
+    const dataJson = await res.json();
+    console.log(dataJson.message);
+    window.localStorage.removeItem("token");
+    window.localStorage.removeItem("username");
+    switchScreen(loginScreen);
+  } catch (error) {
+    console.error(`Error occur: ${error.message}`);
+  }
 });
 
 editSaveButton.addEventListener("click", async () => {
-  if (editUsername.value) currentUser.username = editUsername.value;
-  if (editEmail.value) currentUser.email = editEmail.value;
-  if (editPassword.value) currentUser.password = editPassword.value;
-  userNameDisplay.textContent = currentUser.username;
-
   try {
-    const response = await fetch(`/user/info/${currentUser.id}`, {
+    const response = await fetch(`/user/info/${currentUserId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -95,8 +153,8 @@ editSaveButton.addEventListener("click", async () => {
       throw new Error(response.status);
     }
 
-    const updatedInfo = await response.json();
-    // console.log("response here", updatedInfo);
+    const dataJson = await response.json();
+    console.log("response here", dataJson.message);
     alert("Profile updated successfully");
   } catch (error) {
     console.error(error);
@@ -168,8 +226,11 @@ function renderSearchResults(songs) {
 // Like a Song
 const likeSong = async (songId) => {
   try {
-    const userId = "67684b30419df48075106542";
-    const response = await fetch(`/songs/${userId}`, {
+    if (currentUserId === "") {
+      alert("Please Login First");
+      return;
+    }
+    const response = await fetch(`/songs/${currentUserId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -185,7 +246,7 @@ const likeSong = async (songId) => {
     const newlyAddedSong = await response.json();
     // console.log("Newly added song:", newlyAddedSong);
 
-    renderLikedSongs();
+    renderLikedSongs(currentUserId);
   } catch (error) {
     console.error("Error in likeSong function:", error);
   }
@@ -193,8 +254,12 @@ const likeSong = async (songId) => {
 
 const followArtist = async (artist) => {
   try {
-    const userId = "67684b30419df48075106542";
-    const response = await fetch(`/artists/${userId}`, {
+    if (currentUserId === "") {
+      alert("Please Login First");
+      return;
+    }
+    // const userId = "67684b30419df48075106542";
+    const response = await fetch(`/artists/${currentUserId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -210,15 +275,15 @@ const followArtist = async (artist) => {
     const newlyAddedArtist = await response.json();
     console.log("Newly added artist:", newlyAddedArtist);
 
-    renderArtists();
+    renderArtists(currentUserId);
   } catch (error) {
     console.error("Error in likeSong function:", error);
   }
 };
 
-const renderLikedSongs = async () => {
+const renderLikedSongs = async (id) => {
   try {
-    const response = await fetch(`/user/songs/${currentUser.id}`);
+    const response = await fetch(`/user/songs/${id}`);
     if (!response.ok) {
       throw new Error("error status: ", response.status);
     }
@@ -244,9 +309,9 @@ const renderLikedSongs = async () => {
   }
 };
 
-const renderArtists = async () => {
+const renderArtists = async (id) => {
   try {
-    const response = await fetch(`/user/artists/${currentUser.id}`);
+    const response = await fetch(`/user/artists/${id}`);
     if (!response.ok) {
       throw new Error("error status: ", response.status);
     }

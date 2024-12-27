@@ -31,42 +31,6 @@
         <button id="logout-button">Logout</button>
       </div>
 
-      <!-- Search Song/Artist  -->
-      <div id="search-section">
-        <h3>Search Songs</h3>
-        <input
-          type="text"
-          id="search-input"
-          placeholder="Enter song title or artist name"
-        />
-        <input type="text" id="search-genre" placeholder="Genre (optional)" />
-        <input
-          type="text"
-          id="search-language"
-          placeholder="Language (optional)"
-        />
-        <button id="search-button">Search</button>
-      </div>
-
-      <!-- Search Results -->
-      <div id="search-results">
-        <h3>Search Results</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Artist</th>
-              <th>Genres</th>
-              <th>Language</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="results-list">
-            <!-- Results will be displayed here -->
-          </tbody>
-        </table>
-      </div>
-
       <!-- My liked artists -->
       <div id="liked-artists">
         <h3>Followed Artists</h3>
@@ -100,6 +64,45 @@
         <button id="edit-save-button">Save Changes</button>
       </div>
     </div>
+
+    <br /><br /><br /><br /><br /><br /><br /><br />
+
+    <!-- Search Song/Artist  -->
+    <div id="search-section">
+      <h3>Search Songs</h3>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Enter song title or artist name"
+      />
+      <input type="text" id="search-genre" placeholder="Genre (optional)" />
+      <input
+        type="text"
+        id="search-language"
+        placeholder="Language (optional)"
+      />
+      <button id="search-button">Search</button>
+    </div>
+
+    <!-- Search Results -->
+    <div id="search-results">
+      <h3>Search Results</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Artist</th>
+            <th>Genres</th>
+            <th>Language</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="results-list">
+          <!-- Results will be displayed here -->
+        </tbody>
+      </table>
+    </div>
   </body>
+
   <script src="script.js"></script>
 </html>

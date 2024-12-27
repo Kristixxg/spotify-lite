@@ -12,11 +12,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "argon2": "^0.31.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.9.2"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "validator": "^13.11.0"
   }
 }
